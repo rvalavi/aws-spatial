@@ -6,12 +6,14 @@ library(spocc)
 library(rgbif)
 library(sf)
 
-# species_data <- spocc::occ(
-#   query = "Phascolarctos cinereus",
-#   from = "gbif",
-#   limit = 1000
-#   # geometry = sf_bbox(cat_ext)
-# )
+if (!exists("species_data")) {
+  species_data <- spocc::occ(
+    query = "Phascolarctos cinereus",
+    from = "gbif",
+    limit = 1000
+    # geometry = sf_bbox(cat_ext)
+  )
+}
 
 get_data <- function(x) {
   return(
@@ -35,26 +37,29 @@ ui <- dashboardPage(
   
   dashboardBody(
     tabItems(
-      tabItem(tabName = "get",
-              DefaultButton.shinyInput(
-                inputId = ("button_1"),
-                text = "Get species",
-                primary = FALSE,
-                split = TRUE,
-                splitButtonAriaLabel = "See 2 options",
-                `aria-roledescription` = "split button",
-                # menuProps = menuProps,
-                disabled = FALSE,
-                checked = FALSE
-              )
+      tabItem(
+        tabName = "get",
+        DefaultButton.shinyInput(
+          inputId = ("button_1"),
+          text = "Get species",
+          primary = FALSE,
+          split = TRUE,
+          splitButtonAriaLabel = "See 2 options",
+          `aria-roledescription` = "split button",
+          # menuProps = menuProps,
+          disabled = FALSE,
+          checked = FALSE
+        )
       ),
-      tabItem(tabName = "mapage",
-              fluidRow(
-                maplibreOutput("map", height = "700px")
-              )
+      tabItem(
+        tabName = "mapage",
+        fluidRow(
+          mapboxglOutput("map", height = "700px")
+        )
       ),
-      tabItem(tabName = "desc",
-              h2("Description page"),
+      tabItem(
+        tabName = "desc",
+        h2("Description page"),
       )
     )
   )
@@ -64,12 +69,12 @@ ui <- dashboardPage(
 
 server <- function(input, output) {
   
-  output$map <- renderMaplibre({
-    maplibre(style = carto_style("positron")) |>
+  output$map <- renderMapboxgl({
+    mapboxgl() |>
       fit_bounds(pnts, animate = FALSE) |>
       add_circle_layer(
         id = "sp_data",
-        circle_color = scales::alpha("black", 0.3),
+        circle_color = "black",
         source = pnts,
       )
   })
